@@ -1,0 +1,26 @@
+{% extends "learning_logs/base.html" %}
+{% block content %}
+    <!-- Если у формы установлен атрибут errors, выводится сообщение об ошибке.
+    В нем говорится, что комбинация имени пользователя и пароля не соответствует
+    информации, хранящейся в базе данных. -->
+    {% if form.errors %}
+    <p>Your username and password didn't match. Please try again.</p>
+    <p>Ваше имя пользователя и пароль не совпадают. Пожалуйста, попробуйте еще раз.</p>
+    {% endif %}
+
+    <!-- Мы хотим, чтобы представление обработало форму, поэтому аргументу action
+    присваивается URL страницы входа -->
+
+    <form method="post" action="{% url 'users:login' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+    <!-- далее включается скрытый элемент формы 'next'; аргумент value сообщает Django, куда
+    перенаправить пользователя после успешно выполненного входа.
+    В нашем случае пользователь возвращается обратно на домашнюю страницу -->
+
+        <button name="submit">log in</button>
+        <input type="hidden" name="next" value="{% url 'learning_logs:index' %}" />
+    </form>
+
+{% endblock content %}

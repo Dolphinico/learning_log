@@ -1,0 +1,35 @@
+{% extends 'learning_logs/base.html' %}
+
+{% block content %}
+<!-- Шаблон расширяет base html, как и для всех страниц проекта. Затем выводится
+текущая тема из шаблонной переменной {{ topic }}.
+Переменная topic доступна, потому что она включена в словарь context -->
+<p>Topic: {{ topic }}</p>
+
+<p>Entries:</p>
+<p>
+    <a href="{% url 'learning_logs:new_entry' topic.id %}">add new entry</a>
+    </p>
+<!-- Затем создается маркированный список со всеми записями по теме -->
+<ul>
+    <!-- перебор записей осуществляется так же, как это делалось ранее для тем -->
+    {% for entry in entries %}
+    <li>
+        <!-- каждым элементом списка связываются два значения: временна́я метка и полный текст каждой записи. 
+            Для временнуй метки выводится значение атрибута date_added.-->
+        <p>{{ entry.date_added|date:'M d, Y H:i' }}</p>
+        <!-- Фильтр linebreaks следит за тем, чтобы длинный текст содержал разрывы строк в формате,
+        поддерживаемом браузером (вместо блока непрерывного текста). -->
+        <p>{{ entry.text|linebreaks }}</p>
+        <p>
+            <a href="{% url 'learning_logs:edit_entry' entry.id %}">edit entry</a>
+        </p>
+    </li>
+    {%empty%}
+    <li>
+        There are no entries for this topic yet.
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock content %}
