@@ -1,7 +1,6 @@
-from django.conf.urls import url
+from django.urls import path
 # Сначала импортируется представление login по умолчанию:
 from django.contrib.auth.views import LoginView
-from django.contrib.auth import views as auth_views
 from . import views
 
 """Определяет схемы URL для пользователей"""
@@ -11,6 +10,9 @@ urlpatterns = [
     # Страница входа
     # Когда Django читает этот URL-адрес, слово users указывает, что следует обратиться к users/urls.py,
     # а login сообщает о том, что запросы должны отправляться представлению login по умолчанию
-    url(r'^login/$', LoginView.as_view(), name='login'),
-
+    # страница входа:
+    path('login/', LoginView.as_view(template_name = 'users/login.html'),name='login'),
+    # страница выхода:
+    path('logout/', views.logout_view, name='logout'),
+    # path('register/', views.register, name='register'),
 ]
