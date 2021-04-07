@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -15,6 +16,7 @@ class Topic(models.Model):
     # Аргумент auto_add_now=True приказывает  Django автоматически присвоить этому атрибуту текущую дату и время
     # каждый раз, когда пользователь создает новую тему:
     date_added = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     # Необходимо сообщить Django, какой атрибут должен использоваться по умолчанию при вводе информации о теме.
     # Django вызывает метод __str__() для вывода простого представления модели.
     # Мы написали реализацию __str__(), которая возвращает строку, хранящуюся в атрибуте text:

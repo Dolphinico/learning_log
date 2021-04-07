@@ -1,8 +1,10 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 from .models import Topic, Entry
 from .forms import TopicForm, EntryForm
+from django.contrib.auth.decorators import login_required
+
 
 
 # Create your views here.
@@ -11,17 +13,22 @@ def index(request):
     """Домашняя страница приложения Learning Log"""
     return render(request, 'learning_logs/index.html')
 
+@login_required
 def topics(request):
     """Выводит список тем"""
-    topics = Topic.objects.order_by('date_added')
+    topics = Topic.objects.filter(owner=request.user).order_by('date_added')
     context = {'topics': topics}
     return render(request, 'learning_logs/topics.html', context)
 
     # Функция получает значение, совпавшее с выражением (?P<topic_id>\d+), и сохраняет его в topic_id:
+@login_required    
 def topic(request, topic_id):
     """Выводит одну тему и все ее записи"""
     # функция get() используется для получения темы (по аналогии с тем, как мы это делали в оболочке Django)
     topic = Topic.objects.get(id=topic_id)
+    # Проверка того, что тема принадлежит текущему пользователю.
+    if topic.owner != request.user:
+        raise Http404
     # далее загружаются записи, связанные с данной темой, и они упорядочиваются по значению date_added:
     # знак «минус» перед date_added сортирует результаты в обратном порядке,
     # то есть самые последние записи будут находиться на первых местах.
@@ -31,6 +38,7 @@ def topic(request, topic_id):
     # который передается шаблону topic html
     return render(request, 'learning_logs/topic.html', context)
 
+@login_required
 def new_topic(request):
     """Определяет новую тему"""
     # Если метод запроса отличен от POST, вероятно, используется запрос GET, поэтому необходимо
@@ -51,6 +59,9 @@ def new_topic(request):
         # (все поля формы по умолчанию являются обязательными), 
         # а введенные данные соответствуют типам полей
         if form.is_valid():
+            new_topic = form.save(commit=False)
+            new_topic.owner = request.user
+            new_topic.save()
             # Если все данные действительны,можно вызвать метод save()
             form.save()
             # используем вызов reverse() для получения URL-адреса страницы topics и передаем
@@ -60,7 +71,7 @@ def new_topic(request):
     context = {'form': form}
     return render(request, 'learning_logs/new_topic.html', context)
 
-
+@login_required
 def new_entry(request, topic_id):
     """Добавляет новую запись по конкретной теме."""
     topic = Topic.objects.get(id=topic_id)
@@ -80,11 +91,14 @@ def new_entry(request, topic_id):
     context = {'topic': topic, 'form': form}
     return render(request, 'learning_logs/new_entry.html', context)
 
+@login_required
 def edit_entry(request, entry_id):
     """Редактирует существующую запись."""
     # мы получаем объект записи, который пользователь хочет изменить, и тему, связанную с этой записью.
     entry = Entry.objects.get(id=entry_id)
     topic = entry.topic
+    if topic.owner != request.user:
+        raise Http404
     # в блоке if создается экземпляр EntryForm с аргументом instance=entry
     # Этот аргумент приказывает Django создать форму, заранее заполненную информацией из существующего объекта записи.
     # Пользователь видит свои существующие данные и может отредактировать их.
