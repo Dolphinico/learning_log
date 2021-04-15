@@ -1,12 +1,13 @@
 {% extends 'learning_logs/base.html' %}
+<!-- Сначала тема размещается в блоке header -->
+{% block header %}
+<h2>{{ topic }}</h2>
+{% endblock header %}
 
 {% block content %}
 <!-- Шаблон расширяет base html, как и для всех страниц проекта. Затем выводится
 текущая тема из шаблонной переменной {{ topic }}.
 Переменная topic доступна, потому что она включена в словарь context -->
-<p>Topic: {{ topic }}</p>
-
-<p>Entries:</p>
 <p>
     <a href="{% url 'learning_logs:new_entry' topic.id %}">add new entry</a>
     </p>
@@ -14,17 +15,27 @@
 <ul>
     <!-- перебор записей осуществляется так же, как это делалось ранее для тем -->
     {% for entry in entries %}
-    <li>
-        <!-- каждым элементом списка связываются два значения: временна́я метка и полный текст каждой записи. 
-            Для временнуй метки выводится значение атрибута date_added.-->
-        <p>{{ entry.date_added|date:'M d, Y H:i' }}</p>
-        <!-- Фильтр linebreaks следит за тем, чтобы длинный текст содержал разрывы строк в формате,
-        поддерживаемом браузером (вместо блока непрерывного текста). -->
-        <p>{{ entry.text|linebreaks }}</p>
-        <p>
-            <a href="{% url 'learning_logs:edit_entry' entry.id %}">edit entry</a>
-        </p>
-    </li>
+    <!-- мы создаем элемент div для панели, 
+    который содержит два других вложенных элемента div: panel-heading и panel-body -->
+        <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3>
+                {{ entry.date_added|date:'M d, Y H:i' }}
+                <!-- Элемент div с классом panel-heading содержит дату записи
+                и ссылку для ее редактирования. Оба элемента оформлены как элементы <h3>,
+                но мы заключаем ссылку edit_entry в теги <small>, чтобы она была чуть меньше временнуй метки -->
+                <small>
+                    <a href="{% url 'learning_logs:edit_entry' entry.id %}">
+                    edit entry</a>
+                </small>
+            </h3>
+        </div>
+        <!-- далее располагается элемент div с классом panel-body,
+        который содержит фактический текст записи -->
+        <div class="panel-body">
+            {{ entry.text|linebreaks }}
+            </div>
+            </div> <!-- panel -->
     {%empty%}
     <li>
         There are no entries for this topic yet.
