@@ -143,6 +143,11 @@ if os.getcwd() == '/app':
 # Поддержка заголовка 'X-Forwarded-Proto' для request.is_secure().
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# Хостом проекта может быть только Heroku.
+ALLOWED_HOSTS = ['learning-text-log.herokuapp.com']
+
+DEBUG = False
+
 # Разрешены все заголовки хостов.
 ALLOWED_HOSTS = ['*']
 
