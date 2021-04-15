@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.urls import reverse
 from .models import Topic, Entry
@@ -25,7 +25,7 @@ def topics(request):
 def topic(request, topic_id):
     """Выводит одну тему и все ее записи"""
     # функция get() используется для получения темы (по аналогии с тем, как мы это делали в оболочке Django)
-    topic = Topic.objects.get(id=topic_id)
+    topic = get_object_or_404(Topic, id=topic_id)
     # Проверка того, что тема принадлежит текущему пользователю.
     if topic.owner != request.user:
         raise Http404
